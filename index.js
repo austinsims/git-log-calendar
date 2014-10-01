@@ -1,4 +1,6 @@
 var Q = require('q');
+var _ = require('underscore');
+var moment = require('moment');
 var ArgumentParser = require('argparse').ArgumentParser;
 var Database = require('./database').Database;
 
@@ -16,25 +18,76 @@ parser.addArgument(
     }
 );
 
+// parser.addArgument(
+//     ['-a', '--after'],
+//     {
+// 	help: 'Date after which commits will be included',
+// 	required: true
+//     }
+// );
+
+// parser.addArgument(
+//     ['-b', '--before'],
+//     {
+// 	help: 'Date before which commits will be included',
+// 	required: true
+//     }
+// );
+
 parser.addArgument(
-    ['-a', '--after'],
+    ['--date'],
     {
-	help: 'Date after which commits will be included'
+	help: 'Date to calculate hours worked',
+	required: true
     }
 );
 
 parser.addArgument(
-    ['-b', '--before'],
+    ['-f', '--format'],
     {
-	help: 'Date before which commits will be included'
+	help: 'Output format for hours. One of: rounded (6:45) exact (6:38) or decimal (6.75).  Defaults to decimal.',
+	defaultValue: 'decimal'
     }
 );
 
 var args = parser.parseArgs();
+var possibleFormats = ['rounded', 'decimal', 'exact'];
+if (!_.contains(possibleFormats, args.format)) {
+    console.error('Format must be one of: ' + possibleFormats);
+    process.exit(1);
+}
+
 var db = new Database(args.db);
 
-db.test().then(function(r) {
-    console.log(r);
-});
+var date = args.date;
+
+console.log('date: ' + date.toString());
+//var date = '2014-08-15 00:00:00'
+
+db.totalTimeForDate(new Date(date))
+    .then(function(sum) {
+	// Round a number of minutes up to 15 min intervals
+	function roundUp(n) {
+	    return (Math.round((n+7)/15) * 15) % 61;
+	}
+	
+	var dur = moment.duration(sum, 'hours');
+	switch (args.format) {
+	case 'decimal':
+	    console.log(sum);
+	    break;
+	case 'exact':
+	    console.log('%d:%d', dur.hours(), dur.minutes);
+	    break;
+	case 'rounded':
+	    var min = roundUp(dur.minutes());
+	    var hr = dur.hours() + (min == 60 ? 1 : 0);
+	    console.log('%d:%d', hr, min);
+	    break;
+	}
+    })
+    .fail(function(err) {
+	console.error(err);
+    });
 
 db.close();

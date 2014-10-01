@@ -4,22 +4,35 @@ var sqlite3 = require('sqlite3');
 var moment = require('moment');
 var _ = require('underscore');
 
+// Utility funcitons
+
+function quote(s) {
+    return '\'' + s + '\'';
+};
+
+function decimalHours(mmt) {
+    return mmt.hours() + (mmt.minutes() / 60);
+}
+
+function promiseOfDeath(message) {
+    var deferred = Q.defer();
+    deferred.reject(message);
+    return deferred.promise;
+}
+
+// Constants
+
+var TABLE_NAME = 'T_STAMP_3';
+var DATE_FMT = 'YYYY-MM-DD HH:mm:ss';
+var CHECKIN_ACTION = '10';
+var CHECKOUT_ACTION = '20';
+
 var Database = function(filename) {
-    this.filename = filename;
     this.db = new sqlite3.Database(filename);
-
-    this.hello = function() {
-	return 'hello, world. lets operate on ' + this.filename;
-    };
-
-    this.close = function() {
-	this.db.close();
-    };
-
-    this.test = function() {
+    this.db.execSql = function(query) {
 	var deferred = Q.defer();
 	var rows = [];
-	this.db.each("SELECT * FROM T_STAMP_3 LIMIT 5",
+	this.each(query,
 		// Row received callback
 		function(err, row) {
 		    if (err) deferred.reject(new Error(err));
@@ -30,7 +43,59 @@ var Database = function(filename) {
 		    if (err) deferred.reject(new Error(err));
 		    else deferred.resolve(rows);
 		}
-	);
+	       );
+	return deferred.promise;
+    };
+
+    this.close = function() {
+	this.db.close();
+    };
+    
+    // Just get 5 rows
+    this.test = function() {
+	return this.db.execSql('SELECT * FROM T_STAMP_3 LIMIT 5');
+    };
+
+    // Calculate the total hours worked on a given date
+    this.rowsForDate = function(date) {
+	if (!date)
+	    return promiseOfDeath('No date passed to rowsForDate');
+	var start = moment(date).format(DATE_FMT);
+	var end = moment(date).add(1,'day').format(DATE_FMT);
+	var query = 'select * from T_STAMP_3 where STAMP_DATE_STR between ' + quote(start) + ' and ' + quote(end) + ';';
+	//console.log('Running query: ' + query);
+	return this.db.execSql(query);
+    };
+
+    this.totalTimeForDate = function(date) {
+	var deferred = Q.defer();
+
+	this.rowsForDate(date)
+	    .then(function(rows) {
+		if (rows.length == 0)
+		    deferred.resolve(0);
+		
+		var sum = _.chain(rows)
+			.map(function(row) {
+			    var hours = decimalHours(moment(row.STAMP_DATE_STR, DATE_FMT));
+			    // Map a checkin to a negative # of hours, and a checkout to a positive #
+			    if (row.CHECK_ACTION == CHECKIN_ACTION)
+				return -hours;
+			    else if (row.CHECK_ACTION == CHECKOUT_ACTION)
+				return hours;
+			    else return 0;
+			})
+			.reduce(function(memo, hours) {
+			    // Sum the mapped array for the daily worked hours
+			    return memo + hours;
+			})
+			.value();
+		deferred.resolve(sum);
+	    })
+	    .fail(function(err) {
+		deferred.reject(err);
+	    });
+	
 	return deferred.promise;
     };
 };
