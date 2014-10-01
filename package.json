@@ -1,0 +1,24 @@
+{
+  "name": "git-log-calendar",
+  "version": "0.0.1",
+  "description": "generate a summary of git activity by day along with a total amount of time spent",
+  "main": "index.js",
+  "dependencies": {
+    "nodegit": "~0.1.4",
+    "sqlite3": "~3.0.2",
+    "underscore": "~1.7.0",
+    "argparse": "~0.1.15",
+    "moment": "~2.8.3",
+    "q": "~1.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": ".git"
+  },
+  "author": "Austin Sims",
+  "license": "MIT"
+}
