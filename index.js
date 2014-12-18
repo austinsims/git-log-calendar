@@ -1,52 +1,65 @@
-var Q = require('q');
-var _ = require('underscore');
-var moment = require('moment');
-var ArgumentParser = require('argparse').ArgumentParser;
-var Database = require('./database').Database;
+var Q = require('q'),
+    _ = require('underscore'),
+    moment = require('moment'),
+    ArgumentParser = require('argparse').ArgumentParser,
+    Database = require('./database').Database;
+
+const DATE_FORMAT = 'M/D/YYYY';
+
+function formatDuration(hours, format) {
+    if (!format) throw new Error("call to formatDuration must specify either 'rounded', 'decimal', or 'exact'")
+	function roundUp(n) {
+	    return (Math.round((n+7)/15) * 15) % 61;
+	}
+	var dur = moment.duration(hours, 'hours');
+	switch (format) {
+    	case 'decimal':
+    	    return hours.toFixed(1);
+    	case 'exact':
+    	    return dur.hours() + ':' + dur.minutes();
+    	case 'rounded':
+    	    var min = roundUp(dur.minutes());
+    	    var hr = dur.hours() + (min == 60 ? 1 : 0);
+    	    return hr + ':' + (min == 60 ? '00' : min);
+	}
+}
 
 var parser = new ArgumentParser({
     version: '0.0.1',
     addHelp: true,
-    description: 'Generate a concise summary of work time and accomplishments from a Git repository and an Android Time Recording app database'
+    description: 'Generate a concise summary of work time and summary from a Git repository and an Android Time Recording app database'
 });
 
 parser.addArgument(
     ['--db'],
     {
-	help: 'The SQLite database provided by Time Recording',
-	required: true
+    	help: 'The SQLite database provided by Time Recording',
+    	required: true
     }
 );
 
-// parser.addArgument(
-//     ['-a', '--after'],
-//     {
-// 	help: 'Date after which commits will be included',
-// 	required: true
-//     }
-// );
-
-// parser.addArgument(
-//     ['-b', '--before'],
-//     {
-// 	help: 'Date before which commits will be included',
-// 	required: true
-//     }
-// );
+parser.addArgument(
+    ['-a', '--after'],
+    {
+    	help: 'Date after which commits will be included (MM/DD/YYYY)',
+    	required: true
+    }
+);
 
 parser.addArgument(
-    ['--date'],
+    ['-b', '--before'],
     {
-	help: 'Date to calculate hours worked',
-	required: true
+    	help: 'Date before which commits will be included (MM/DD/YYYY)',
+    	required: true
     }
 );
 
 parser.addArgument(
     ['-f', '--format'],
     {
-	help: 'Output format for hours. One of: rounded (6:45) exact (6:38) or decimal (6.75).  Defaults to decimal.',
-	defaultValue: 'decimal'
+    	help: 'Output format for hours. One of: rounded (6:45) exact (6:38) or decimal (6.75).  Defaults to decimal.',
+    	defaultValue: 'decimal',
+        required: false
     }
 );
 
@@ -59,35 +72,21 @@ if (!_.contains(possibleFormats, args.format)) {
 
 var db = new Database(args.db);
 
-var date = args.date;
+var before, after;
+try {
+    before = moment(args.before);
+    after = moment(args.after);
+} catch (ex) {
+    console.error('Parsing either before (' + args.before + ') or after (' + args.after + ') failed.');
+    process.exit(1);
+}
+if (after.diff(before) >= 0) throw new Error('After must be after before.');
 
-console.log('date: ' + date.toString());
-//var date = '2014-08-15 00:00:00'
+var cur = after.clone();
 
-db.totalTimeForDate(new Date(date))
-    .then(function(sum) {
-	// Round a number of minutes up to 15 min intervals
-	function roundUp(n) {
-	    return (Math.round((n+7)/15) * 15) % 61;
-	}
-	
-	var dur = moment.duration(sum, 'hours');
-	switch (args.format) {
-	case 'decimal':
-	    console.log(sum);
-	    break;
-	case 'exact':
-	    console.log('%d:%d', dur.hours(), dur.minutes);
-	    break;
-	case 'rounded':
-	    var min = roundUp(dur.minutes());
-	    var hr = dur.hours() + (min == 60 ? 1 : 0);
-	    console.log('%d:%d', hr, min);
-	    break;
-	}
+(function printTimeForDate(cur) {
+    db.totalTimeForDate(cur).then(function(sum) {
+        console.log(cur.format(DATE_FORMAT) + ': ' + formatDuration(sum, args.format));
+        if (before.diff(cur)) printTimeForDate(cur.add(1, 'day'));
     })
-    .fail(function(err) {
-	console.error(err);
-    });
-
-db.close();
+})(cur)
