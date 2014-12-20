@@ -1,23 +1,52 @@
-var child_process = require('child_process'),
+var exec = require('child_process').exec,
     Q = require('q'),
     util = require('util'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    Util = require('./Util');
 
-function Git() {
-    var command = "git log --author '%s' --format='%%cd %%s' --date=short --after '%s' --before '%s'"
-    this.log = function(author, after, before) {
+const RECORD_SEPARATOR = '\30';
+
+function Git(pathToRepository, author) {
+    this.pathToRepository = pathToRepository;
+    this.author = author;
+
+    // var command = "git log --author '%s' --format='%%cd %%s' --date=short --after '%s' --before '%s'"
+    this.log = function(after, before) {
         var deferred = Q.defer();
-        child_process.exec(
-            util.format(command, author, after, before),
+
+        var command = [
+            'git log',
+            // TODO: Figure out if this should use commiter date (%cd) or author date (%ad) and name
+            '--format='
+                + quote([
+                    '%ad',
+                    '%s',
+                    // If author not specified, grab that from commit to display later
+                    author ? '' : '%an'
+                ].join(RECORD_SEPARATOR)),
+            '--date=short',
+            after ? '--after=' + Util.quote(after) : '',
+            before ? '--before=' + Util.quote(before) : '',
+            this.author ? '--author=' + this.author : '',
+        ].join(' ');
+        console.log('cmd: ' + command);
+
+        exec(
+            command,
+            {cwd: this.pathToRepository},
             function(err, stdout, stderr) {
-                if (err || stderr) deferred.reject(err || stderr);
+                if (err || stderr) deferred.reject('Command "' + command + '" failed: ' + err || stderr);
 
                 var log = _.chain(stdout.split('\n'))
                     .map(function(line) {
+                        var fields = line.split(RECORD_SEPARATOR);
                         var idx = line.indexOf(' ');
                         return {
-                            date: line.substring(0,idx),
-                            message: line.substring(idx+1)
+                            date: fields[0],
+                            message: fields[1],
+                            // this looks weird, but It puts the author in the commit object if an author
+                            // wasn't explicitly specified, so that the messages can be attributed
+                            author: author ? void 0 : fields[2]
                         };
                     })
                     .groupBy(function(commit) {
@@ -27,12 +56,15 @@ function Git() {
                     .map(function(pair) {
                         var date = pair[0];
                         var commits = pair[1];
-                        // pair: [date, [{date: message}, {date: message}]]
-                        // return: [date, concatMessages]
                         return [
                             date,
                             _.reduce(commits, function(memo, commit) {
-                                return util.format('%s%s\n',memo,commit.message);
+                                return util.format(
+                                    '%s%s\n',
+                                    memo,
+                                    // Prepend with author if showing commits from everyone
+                                    (author ? '' : commit.author + ': ') + commit.message
+                                );
                             }, '')
                         ];
                     })
@@ -46,4 +78,4 @@ function Git() {
     }
 }
 
-module.exports = new Git();
+module.exports = Git;

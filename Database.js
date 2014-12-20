@@ -2,18 +2,16 @@ var Q = require('q'),
     fs = require('fs'),
     sqlite3 = require('sqlite3'),
     moment = require('moment'),
-    _ = require('underscore');
+    _ = require('underscore')
+    quote = require('./Util').quote;
 
 // Utility funcitons
-
-function quote(s) {
-    return '\'' + s + '\'';
-};
 
 function decimalHours(mmt) {
     return mmt.hours() + (mmt.minutes() / 60);
 }
 
+// FIXME: figure out why the hell you wrote it like this
 function promiseOfDeath(message) {
     var deferred = Q.defer();
     deferred.reject(message);
