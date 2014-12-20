@@ -5,13 +5,40 @@
     </head>
 
     <body>
-        <span data-bind="text: test"></span>
+        <p>
+            <label>After</label>
+            <input required type="date" data-bind="value: after" />
+        </p>
+
+        <p>
+            <label>Before</label>
+            <input required type="date" data-bind="value: before" />
+        </p>
+
+        <p>
+            <label>Repository Path</label>
+            <input required type="text" data-bind="value: repoPath" />
+        </p>
+
+        <p>
+            <label>Author</label>
+            <input type="text" data-bind="value: author" />
+        </p>
+
+        <p>
+            <label>All Branches</label>
+            <input type="checkbox" data-bind="checked: allBranches" />
+        </p>
+
+        <button data-bind="click: go">Go!</button>
+
+        <pre data-bind="text: log">
+        </pre>
 
         <!-- bower:js -->
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <script src="bower_components/knockout/dist/knockout.js"></script>
         <script src="bower_components/lodash/dist/lodash.compat.js"></script>
-        <script src="bower_components/q/q.js"></script>
         <!-- endbower -->
 
         <script src="/viewmodel.js"></script>

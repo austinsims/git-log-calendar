@@ -1,6 +1,7 @@
 var express = require('express'),
     ArgumentParser = require('argparse').ArgumentParser,
-    path = require('path');
+    path = require('path'),
+    Git = require('./Git');
 
 var parser = new ArgumentParser({
     version: '0.0.1',
@@ -28,6 +29,18 @@ app.use('/bower_components', express.static(__dirname + '/bower_components'));
 // Routes
 app.get('/hello', function(request, response) {
     response.send('Hello, world');
+});
+
+app.get('/log', function(request, response) {
+    var git = new Git(request.query.repoPath, request.query.author)
+    // TODO: Find a better pattern for making sense of the query string
+    git.log(
+        request.query.after,
+        request.query.before,
+        request.query.allBranches == 'true'
+    ).then(function(log) {
+        response.send(JSON.stringify(log));
+    });
 });
 
 var server = app.listen(args.port, function() {

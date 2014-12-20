@@ -10,24 +10,25 @@ function Git(pathToRepository, author) {
     this.pathToRepository = pathToRepository;
     this.author = author;
 
-    // var command = "git log --author '%s' --format='%%cd %%s' --date=short --after '%s' --before '%s'"
-    this.log = function(after, before) {
+    /// Maps dates in the range to a list of commits
+    this.log = function(after, before, allBranches) {
         var deferred = Q.defer();
 
         var command = [
             'git log',
+            allBranches ? '--all' : '',
             // TODO: Figure out if this should use commiter date (%cd) or author date (%ad) and name
             '--format='
-                + quote([
+                + Util.quote([
                     '%ad',
                     '%s',
                     // If author not specified, grab that from commit to display later
-                    author ? '' : '%an'
+                    '%an'
                 ].join(RECORD_SEPARATOR)),
             '--date=short',
             after ? '--after=' + Util.quote(after) : '',
             before ? '--before=' + Util.quote(before) : '',
-            this.author ? '--author=' + this.author : '',
+            this.author ? '--author=' + Util.quote(this.author) : '',
         ].join(' ');
         console.log('cmd: ' + command);
 
@@ -38,37 +39,20 @@ function Git(pathToRepository, author) {
                 if (err || stderr) deferred.reject('Command "' + command + '" failed: ' + err || stderr);
 
                 var log = _.chain(stdout.split('\n'))
+                    // Don't process the newline at the end
+                    .filter(Boolean)
                     .map(function(line) {
                         var fields = line.split(RECORD_SEPARATOR);
                         var idx = line.indexOf(' ');
                         return {
                             date: fields[0],
                             message: fields[1],
-                            // this looks weird, but It puts the author in the commit object if an author
-                            // wasn't explicitly specified, so that the messages can be attributed
-                            author: author ? void 0 : fields[2]
+                            author: fields[2]
                         };
                     })
                     .groupBy(function(commit) {
                         return commit.date;
                     })
-                    .pairs()
-                    .map(function(pair) {
-                        var date = pair[0];
-                        var commits = pair[1];
-                        return [
-                            date,
-                            _.reduce(commits, function(memo, commit) {
-                                return util.format(
-                                    '%s%s\n',
-                                    memo,
-                                    // Prepend with author if showing commits from everyone
-                                    (author ? '' : commit.author + ': ') + commit.message
-                                );
-                            }, '')
-                        ];
-                    })
-                    .object()
                     .value();
 
                 deferred.resolve(log);
