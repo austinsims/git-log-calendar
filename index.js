@@ -1,6 +1,7 @@
 var ArgumentParser = require('argparse').ArgumentParser,
     _ = require('underscore'),
-    Timerec = require('./Timerec');
+    Timerec = require('./Timerec')
+    moment = require('moment');
 
 var possibleFormats = ['rounded', 'decimal', 'exact'];
 function formatDuration(hours, format) {
@@ -69,5 +70,30 @@ if (!_.contains(possibleFormats, args.format)) {
 
 var timerec = new Timerec(args.db);
 timerec.dailySummary(args.before, args.after).then(function(summary) {
-    console.log(JSON.stringify(summary));
+    console.log(JSON.stringify(
+        _.chain(summary)
+        .pairs()
+        .map(function(pair) {
+            return [pair[0], formatDuration(pair[1], args.format)];
+        })
+        .object()
+        .value()
+    ));
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
