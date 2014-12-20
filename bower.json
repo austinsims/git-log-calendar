@@ -1,0 +1,27 @@
+{
+  "name": "git-log-calendar",
+  "main": "app.js",
+  "version": "0.0.1",
+  "homepage": "https://github.com/austinsims/git-log-calendar",
+  "authors": [
+    "Austin Sims <adsims2001@gmail.com>"
+  ],
+  "description": "generate a summary of git activity by day along with a total amount of time spent",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3",
+    "knockout": "~3.2.0",
+    "lodash": "~2.4.1",
+    "q": "~2.0.2"
+  }
+}
