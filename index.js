@@ -1,7 +1,8 @@
 var ArgumentParser = require('argparse').ArgumentParser,
     _ = require('underscore'),
     Timerec = require('./Timerec')
-    moment = require('moment');
+    moment = require('moment')
+    git = require('./Git');
 
 var possibleFormats = ['rounded', 'decimal', 'exact'];
 function formatDuration(hours, format) {
@@ -72,15 +73,18 @@ var timerec = new Timerec(args.db);
 timerec.dailySummary(args.before, args.after).then(function(summary) {
     console.log(JSON.stringify(
         _.chain(summary)
-        .pairs()
-        .map(function(pair) {
-            return [pair[0], formatDuration(pair[1], args.format)];
-        })
-        .object()
-        .value()
+            .pairs()
+            .map(function(pair) {
+                return [pair[0], formatDuration(pair[1], args.format)];
+            })
+            .object()
+            .value(),
+        void 0,
+        4
     ));
 });
 
+git.log('Austin Sims', '2014-12-17', '2014-12-20').then(function(out) { console.log(JSON.stringify(out, void 0, 4)); });
 
 
 
