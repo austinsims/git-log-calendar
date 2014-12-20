@@ -58,7 +58,6 @@ var Database = function(filename) {
     	var start = moment(date).format(DATE_FMT);
     	var end = moment(date).add(1,'day').format(DATE_FMT);
     	var query = 'select * from T_STAMP_3 where STAMP_DATE_STR between ' + quote(start) + ' and ' + quote(end) + ';';
-    	//console.log('Running query: ' + query);
     	return this.db.execSql(query);
     };
 
@@ -95,4 +94,4 @@ var Database = function(filename) {
     };
 };
 
-module.exports.Database = Database;
+module.exports = Database;

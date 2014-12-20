@@ -1,11 +1,8 @@
-var Q = require('q'),
+var ArgumentParser = require('argparse').ArgumentParser,
     _ = require('underscore'),
-    moment = require('moment'),
-    ArgumentParser = require('argparse').ArgumentParser,
-    Database = require('./database').Database;
+    Timerec = require('./Timerec');
 
-const DATE_FORMAT = 'M/D/YYYY';
-
+var possibleFormats = ['rounded', 'decimal', 'exact'];
 function formatDuration(hours, format) {
     if (!format) throw new Error("call to formatDuration must specify either 'rounded', 'decimal', or 'exact'")
 	function roundUp(n) {
@@ -64,29 +61,13 @@ parser.addArgument(
 );
 
 var args = parser.parseArgs();
-var possibleFormats = ['rounded', 'decimal', 'exact'];
+
 if (!_.contains(possibleFormats, args.format)) {
     console.error('Format must be one of: ' + possibleFormats);
     process.exit(1);
 }
 
-var db = new Database(args.db);
-
-var before, after;
-try {
-    before = moment(args.before);
-    after = moment(args.after);
-} catch (ex) {
-    console.error('Parsing either before (' + args.before + ') or after (' + args.after + ') failed.');
-    process.exit(1);
-}
-if (after.diff(before) >= 0) throw new Error('After must be after before.');
-
-var cur = after.clone();
-
-(function printTimeForDate(cur) {
-    db.totalTimeForDate(cur).then(function(sum) {
-        console.log(cur.format(DATE_FORMAT) + ': ' + formatDuration(sum, args.format));
-        if (before.diff(cur)) printTimeForDate(cur.add(1, 'day'));
-    })
-})(cur)
+var timerec = new Timerec(args.db);
+timerec.dailySummary(args.before, args.after).then(function(summary) {
+    console.log(JSON.stringify(summary));
+});
