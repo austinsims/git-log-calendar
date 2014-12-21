@@ -1,13 +1,5 @@
-label {
-    display: inline-block;
-    width: 120px;
-    text-align: right;
-    vertical-align: top;
-    padding-right: 15px;
-}
-
-button {
-    margin-left: 135px;
+input {
+    margin-right: 1.5em;
 }
 
 html {
@@ -16,7 +8,6 @@ html {
 }
 
 * {
-    /*font-family: 'Source Code Pro';*/
     font-family: 'Lucida Console';
 }
 
@@ -34,16 +25,30 @@ body {
     margin: 0;
 }
 
-div.cell {
-    display: table-cell;
-    padding: 10px;
-    height: 100%;
+table {
+    width: 100%;
+    border: 1px solid;
+    margin: 1em;
+    table-layout: fixed;
+    margin: 0;
+    word-wrap: break-word;
+    border-collapse: collapse;
 }
 
-div.sidebar {
-    width: 25%;
+thead {
+    text-align: left;
+    border-bottom: 1px;
 }
 
-div.content {
-    width: 75%;
+tbody {
+    font-size: smaller;
+}
+
+td {
+    vertical-align: top;
+    border: 1px solid;
+}
+
+div.td-force-height {
+    min-height: 4em;
 }

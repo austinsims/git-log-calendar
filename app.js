@@ -40,6 +40,8 @@ app.get('/log', function(request, response) {
         request.query.allBranches == 'true'
     ).then(function(log) {
         response.send(JSON.stringify(log));
+    }).fail(function(why) {
+        response.status(500).send(why);
     });
 });
 

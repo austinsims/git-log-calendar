@@ -36,7 +36,10 @@ function Git(pathToRepository, author) {
             command,
             {cwd: this.pathToRepository},
             function(err, stdout, stderr) {
-                if (err || stderr) deferred.reject('Command "' + command + '" failed: ' + err || stderr);
+                if (err || stderr) {
+                    deferred.reject('Command "' + command + '" failed: ' + err || stderr);
+                    return;
+                }
 
                 var log = _.chain(stdout.split('\n'))
                     // Don't process the newline at the end

@@ -1,6 +1,6 @@
 function Util() {
     this.quote = function (s) {
-        return '\'' + s + '\'';
+        return '"' + s + '"';
     };
 
     this.replaceAll = function (haystack, needle, replacement) {

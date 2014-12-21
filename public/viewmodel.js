@@ -19,7 +19,7 @@ function GitLogCalendar() {
     // form inputs
     self.after = ko.observable();
     self.before = ko.observable();
-    self.repoPath = ko.observable('C:\\Users\\asims\\projects\\atom');
+    self.repoPath = ko.observable('C:\\Users\\asims\\projects\\test-data-generator');
     self.author = ko.observable();
     self.allBranches = ko.observable(false);
 
@@ -28,7 +28,7 @@ function GitLogCalendar() {
 
     self.go = function() {
         // Don't do anything until both dates have been entered
-        if (!(self.after() && self.before())) return;
+        if (!(self.after() && self.before() && self.repoPath)) return;
 
         $.ajax('/log?' + $.param({
             before: self.before(),
@@ -56,8 +56,9 @@ function GitLogCalendar() {
         });
     }
 
-    self.after.subscribe(self.go);
-    self.before.subscribe(self.go);
+    _.each([self.after, self.before, self.repoPath, self.author, self.allBranches], function(obs) {
+        obs.subscribe(self.go);
+    });
 
 }
 

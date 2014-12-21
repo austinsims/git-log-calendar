@@ -7,38 +7,26 @@
 
     <body>
 
-        <div class="cell sidebar">
-            <p>
-                <label>After</label>
-                <input required type="date" data-bind="value: after" />
-            </p>
+        <div>
+            <label>After</label>
+            <input required type="date" data-bind="value: after" />
 
-            <p>
-                <label>Before</label>
-                <input required type="date" data-bind="value: before" />
-            </p>
+            <label>Before</label>
+            <input required type="date" data-bind="value: before" />
 
-            <p>
-                <label>Repository Path</label>
-                <input required type="text" data-bind="value: repoPath" />
-            </p>
+            <label>Repository Path</label>
+            <input required type="text" data-bind="value: repoPath" />
 
-            <p>
-                <label>Author</label>
-                <input type="text" data-bind="value: author" />
-            </p>
+            <label>Author</label>
+            <input type="text" data-bind="value: author" />
 
-            <p>
-                <label>All Branches</label>
-                <input type="checkbox" data-bind="checked: allBranches" />
-            </p>
-
-            <button data-bind="click: go">Go!</button>
+            <label>All Branches</label>
+            <input type="checkbox" data-bind="checked: allBranches" />
         </div>
 
-        <div class="cell content">
+        <div >
 
-            <table>
+            <table data-bind="visible: weeks">
                 <thead>
                     <tr>
                         <th>Mon</th>
@@ -57,17 +45,17 @@
             <script type="text/html" id="week-template">
                 <tr data-bind="foreach: $data">
                     <td>
-                        <span data-bind="text: date"></span>
-                        <ul data-bind="foreach: commits">
-                            <li data-bind="text: message"></li>
-                        </ul>
+                        <div class="td-force-height">
+                            <span data-bind="text: date"></span>
+                            <ul data-bind="foreach: commits">
+                                <li data-bind="text: message"></li>
+                            </ul>
+                        </div>
                     </td>
                     <!-- <td data-bind="text: $data.date"></td> -->
                 </tr>
             </script>
 
-            <pre data-bind="text: log">
-            </pre>
         </div>
 
         <!-- bower:js -->
