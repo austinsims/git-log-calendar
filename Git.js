@@ -19,12 +19,12 @@ function Git(pathToRepository, author) {
             allBranches ? '--all' : '',
             // TODO: Figure out if this should use commiter date (%cd) or author date (%ad) and name
             '--format='
-                + Util.quote([
-                    '%ad',
+                + [
+                    '%cd',
                     '%s',
                     // If author not specified, grab that from commit to display later
-                    '%an'
-                ].join(RECORD_SEPARATOR)),
+                    '%cn'
+                ].join(RECORD_SEPARATOR),
             '--date=short',
             after ? '--after=' + Util.quote(after) : '',
             before ? '--before=' + Util.quote(before) : '',

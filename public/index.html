@@ -2,45 +2,95 @@
 <html>
     <head>
         <link rel="stylesheet" href="/style.css" />
+        <!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'> -->
     </head>
 
     <body>
-        <p>
-            <label>After</label>
-            <input required type="date" data-bind="value: after" />
-        </p>
 
-        <p>
-            <label>Before</label>
-            <input required type="date" data-bind="value: before" />
-        </p>
+        <div class="cell sidebar">
+            <p>
+                <label>After</label>
+                <input required type="date" data-bind="value: after" />
+            </p>
 
-        <p>
-            <label>Repository Path</label>
-            <input required type="text" data-bind="value: repoPath" />
-        </p>
+            <p>
+                <label>Before</label>
+                <input required type="date" data-bind="value: before" />
+            </p>
 
-        <p>
-            <label>Author</label>
-            <input type="text" data-bind="value: author" />
-        </p>
+            <p>
+                <label>Repository Path</label>
+                <input required type="text" data-bind="value: repoPath" />
+            </p>
 
-        <p>
-            <label>All Branches</label>
-            <input type="checkbox" data-bind="checked: allBranches" />
-        </p>
+            <p>
+                <label>Author</label>
+                <input type="text" data-bind="value: author" />
+            </p>
 
-        <button data-bind="click: go">Go!</button>
+            <p>
+                <label>All Branches</label>
+                <input type="checkbox" data-bind="checked: allBranches" />
+            </p>
 
-        <pre data-bind="text: log">
-        </pre>
+            <button data-bind="click: go">Go!</button>
+        </div>
+
+        <div class="cell content">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mon</th>
+                        <th>Tues</th>
+                        <th>Wed</th>
+                        <th>Thurs</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                        <th>Sun</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="template: { name: 'week-template', foreach: weeks}">
+                </tbody>
+            </table>
+
+            <script type="text/html" id="week-template">
+                <tr data-bind="foreach: $data">
+                    <td>
+                        <span data-bind="text: date"></span>
+                        <ul data-bind="foreach: commits">
+                            <li data-bind="text: message"></li>
+                        </ul>
+                    </td>
+                    <!-- <td data-bind="text: $data.date"></td> -->
+                </tr>
+            </script>
+
+            <pre data-bind="text: log">
+            </pre>
+        </div>
 
         <!-- bower:js -->
         <script src="bower_components/jquery/dist/jquery.js"></script>
         <script src="bower_components/knockout/dist/knockout.js"></script>
         <script src="bower_components/lodash/dist/lodash.compat.js"></script>
+        <script src="bower_components/moment/moment.js"></script>
         <!-- endbower -->
 
         <script src="/viewmodel.js"></script>
     </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- -->
