@@ -47,8 +47,24 @@ tbody {
 td {
     vertical-align: top;
     border: 1px solid;
+    padding: 5px;
 }
 
 div.td-force-height {
     min-height: 4em;
+}
+
+ul {
+    list-style-type: none;
+    list-style-position: inside;
+    padding-left: 0;
+}
+
+i.fa {
+    opacity: 0;
+}
+
+i.fa:hover {
+    cursor:pointer;
+    opacity: 1;
 }
