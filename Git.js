@@ -4,7 +4,7 @@ var exec = require('child_process').exec,
     _ = require('underscore'),
     Util = require('./Util');
 
-const RECORD_SEPARATOR = '\30';
+var RECORD_SEPARATOR = '\30';
 
 function Git(pathToRepository, author) {
     this.pathToRepository = pathToRepository;
