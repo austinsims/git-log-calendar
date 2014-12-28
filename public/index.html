@@ -2,12 +2,14 @@
 <html>
     <head>
         <link rel="stylesheet" href="/style.css" />
+        <link rel="stylesheet" href="bower_components/fontawesome/css/font-awesome.min.css">
         <!-- <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro' rel='stylesheet' type='text/css'> -->
     </head>
 
     <body>
 
         <div>
+
             <label>After</label>
             <input required type="date" data-bind="value: after" />
 
@@ -22,6 +24,10 @@
 
             <label>All Branches</label>
             <input type="checkbox" data-bind="checked: allBranches" />
+
+            <label>Message Filter (regex)</label>
+            <input type="text" data-bind="value: messageFilter" />
+
         </div>
 
         <div >
@@ -48,7 +54,10 @@
                         <div class="td-force-height">
                             <span data-bind="text: date"></span>
                             <ul data-bind="foreach: commits">
-                                <li data-bind="text: message"></li>
+                                <li>
+                                    <i class="fa fa-trash"></i>
+                                    <span data-bind="text: message"></span>
+                                </li>
                             </ul>
                         </div>
                     </td>

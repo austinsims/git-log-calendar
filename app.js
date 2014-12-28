@@ -37,7 +37,8 @@ app.get('/log', function(request, response) {
     git.log(
         request.query.after,
         request.query.before,
-        request.query.allBranches == 'true'
+        request.query.allBranches == 'true',
+        request.query.messageFilter
     ).then(function(log) {
         response.send(JSON.stringify(log));
     }).fail(function(why) {

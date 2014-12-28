@@ -11,7 +11,7 @@ function Git(pathToRepository, author) {
     this.author = author;
 
     /// Maps dates in the range to a list of commits
-    this.log = function(after, before, allBranches) {
+    this.log = function(after, before, allBranches, messageFilter) {
         var deferred = Q.defer();
 
         var command = [
@@ -29,6 +29,7 @@ function Git(pathToRepository, author) {
             after ? '--after=' + Util.quote(after) : '',
             before ? '--before=' + Util.quote(before) : '',
             this.author ? '--author=' + Util.quote(this.author) : '',
+            messageFilter ? '--grep=' + Util.quote(messageFilter) : ''
         ].join(' ');
         console.log('cmd: ' + command);
 

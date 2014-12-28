@@ -22,6 +22,7 @@ function GitLogCalendar() {
     self.repoPath = ko.observable('C:\\Users\\asims\\projects\\test-data-generator');
     self.author = ko.observable();
     self.allBranches = ko.observable(false);
+    self.messageFilter = ko.observable();
 
     self.weeks = ko.observable();
     self.log = ko.observable();
@@ -35,7 +36,8 @@ function GitLogCalendar() {
             after: self.after(),
             repoPath: self.repoPath(),
             author: self.author(),
-            allBranches: self.allBranches()
+            allBranches: self.allBranches(),
+            messageFilter: self.messageFilter()
         }))
         .done(function(response) {
             self.log(JSON.stringify(JSON.parse(response), undefined, 4));
@@ -56,7 +58,7 @@ function GitLogCalendar() {
         });
     }
 
-    _.each([self.after, self.before, self.repoPath, self.author, self.allBranches], function(obs) {
+    _.each([self.after, self.before, self.repoPath, self.author, self.allBranches, self.messageFilter], function(obs) {
         obs.subscribe(self.go);
     });
 
